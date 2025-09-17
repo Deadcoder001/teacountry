@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 // Import images for destinations
 import teaGarden from '../assets/images/307854703_508778997928563_2050649504796643182_n-e1753080453472.png';
@@ -1325,44 +1327,52 @@ const DestinationsPage = () => {
   };
   
   // Form handlers
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setBookingData(prev => ({ ...prev, [name]: value }));
+  const handleInputChange = (e, field = null, value = null) => {
+    if (field && value !== null) {
+      // For date picker
+      setBookingData(prev => ({ ...prev, [field]: value }));
+    } else {
+      // For regular inputs
+      const { name, value } = e.target;
+      setBookingData(prev => ({ ...prev, [name]: value }));
+    }
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Prepare WhatsApp message
-    const message = `
-Hello! I would like to book the following tour:
-
-*Destination:* ${selectedDestination.name}
-*Duration:* ${selectedDestination.duration}
-*Price:* ${selectedDestination.priceDisplay}
-
-*My Details:*
-Name: ${bookingData.name}
-Email: ${bookingData.email}
-Phone: ${bookingData.phone}
-Number of guests: ${bookingData.guests}
-Preferred travel date: ${bookingData.travelDate}
-
-${bookingData.specialRequests ? `Special requests: ${bookingData.specialRequests}` : ''}
-
-Please contact me with availability and booking information. Thank you!
-    `;
+    // Format the date if it exists
+    const formattedDate = bookingData.travelDate 
+      ? bookingData.travelDate.toLocaleDateString('en-IN')
+      : '';
     
-    // Replace with your actual admin WhatsApp number
-    const adminWhatsApp = "9198541 33713"; // Format: country code + number without +
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappURL = `https://wa.me/${adminWhatsApp}?text=${encodedMessage}`;
+    // Show immediate thank you message
+    alert("Thank you for your booking request! We'll contact you shortly to confirm your reservation.");
     
-    // Open WhatsApp in a new tab
-    window.open(whatsappURL, '_blank');
-    
-    // Close the modal
+    // Close the modal immediately to improve UX
     closeModal();
+    
+    try {
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('Destination', selectedDestination.name);
+      formData.append('Duration', selectedDestination.duration);
+      formData.append('Price', selectedDestination.priceDisplay);
+      formData.append('Customer Name', bookingData.name);
+      formData.append('Email', bookingData.email);
+      formData.append('Phone', bookingData.phone);
+      formData.append('Number of Guests', bookingData.guests);
+      formData.append('Travel Date', formattedDate);
+      formData.append('Special Requests', bookingData.specialRequests || 'None');
+      
+      // Send the form data to the email
+      fetch('https://formsubmit.co/sajid@teacountry.in', {
+        method: 'POST',
+        body: formData,
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
   };
 
   // Reset the image index when a new destination is selected
@@ -1383,6 +1393,11 @@ Please contact me with availability and booking information. Thank you!
       const images = [selectedDestination.image, ...selectedDestination.additionalImages];
       setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
     }
+  };
+
+  // Function to handle calendar date change
+  const handleCalendarChange = (date) => {
+    setBookingData(prev => ({ ...prev, travelDate: format(date, 'yyyy-MM-dd') }));
   };
 
   return (
@@ -1624,13 +1639,13 @@ Please contact me with availability and booking information. Thank you!
                   <FormRow>
                     <FormGroup>
                       <FormLabel>Preferred Travel Date*</FormLabel>
-                      <FormInput 
-                        type="date" 
-                        name="travelDate" 
-                        value={bookingData.travelDate} 
-                        onChange={handleInputChange}
-                        required
-                      />
+                      <CalendarContainer>
+                        <Calendar 
+                          onChange={handleCalendarChange}
+                          value={bookingData.travelDate ? new Date(bookingData.travelDate) : new Date()}
+                          minDate={new Date()}
+                        />
+                      </CalendarContainer>
                     </FormGroup>
                   </FormRow>
                   
@@ -1647,7 +1662,7 @@ Please contact me with availability and booking information. Thank you!
                   </FormRow>
                   
                   <SubmitButton type="submit">
-                    Complete Booking via WhatsApp
+                    Book Now
                   </SubmitButton>
                 </BookingForm>
               )}
@@ -1660,3 +1675,119 @@ Please contact me with availability and booking information. Thank you!
 };
 
 export default DestinationsPage;
+
+// Add these styled components with your other styled components
+const DatePickerWrapper = styled.div`
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
+  
+  .react-datepicker {
+    font-family: 'Inter', sans-serif;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .react-datepicker__header {
+    background-color: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding-top: 12px;
+  }
+  
+  .react-datepicker__current-month {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    padding-bottom: 8px;
+  }
+  
+  .react-datepicker__day-name {
+    color: #999;
+    margin: 6px;
+    font-size: 12px;
+  }
+  
+  .react-datepicker__day {
+    margin: 6px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    color: #555;
+  }
+  
+  .react-datepicker__day:hover {
+    background-color: #f0f7ee;
+  }
+  
+  .react-datepicker__day--selected {
+    background-color: #2c6a3f !important;
+    color: white !important;
+  }
+  
+  .react-datepicker__day--keyboard-selected {
+    background-color: rgba(44, 106, 63, 0.2);
+    color: #2c6a3f;
+  }
+  
+  .react-datepicker__navigation {
+    top: 13px;
+  }
+  
+  .react-datepicker__triangle {
+    display: none;
+  }
+`;
+
+const DateInputField = styled.div`
+  position: relative;
+  width: 100%;
+  
+  input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+    
+    &:focus {
+      outline: none;
+      border-color: #2c6a3f;
+      box-shadow: 0 0 0 1px #2c6a3f;
+    }
+  }
+  
+  &::after {
+    content: "📅";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 16px;
+    color: #aaa;
+  }
+`;
+
+const CalendarContainer = styled.div`
+  margin-bottom: 1rem;
+  
+  .react-calendar {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: inherit;
+  }
+  
+  .react-calendar__tile--active {
+    background: #2c6a3f;
+    color: white;
+  }
+  
+  .react-calendar__tile--now {
+    background: #e6f3eb;
+  }
+`;

@@ -283,9 +283,19 @@ const ContactPage = () => {
     setLoading(true);
     
     try {
-      // In a real application, you would send the form data to your backend
-      // For now, we'll simulate a successful submission
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('Name', formData.name);
+      formData.append('Email', formData.email);
+      formData.append('Phone', formData.phone || 'Not provided');
+      formData.append('Subject', formData.subject);
+      formData.append('Message', formData.message);
+      
+      // Send form data using FormSubmit.co
+      await fetch('https://formsubmit.co/sajid@teacountry.in', {
+        method: 'POST',
+        body: formData,
+      });
       
       setFormStatus({
         submitted: true,
@@ -430,8 +440,7 @@ const ContactPage = () => {
               </InfoIcon>
               <InfoContent>
                 <InfoLabel>Phone</InfoLabel>
-                <InfoText>+91 12345 67890</InfoText>
-                <InfoText>+91 98765 43210</InfoText>
+                <InfoText>+91 98541 33713</InfoText>
               </InfoContent>
             </InfoItem>
             
@@ -441,8 +450,7 @@ const ContactPage = () => {
               </InfoIcon>
               <InfoContent>
                 <InfoLabel>Email</InfoLabel>
-                <InfoText>info@teacountry.com</InfoText>
-                <InfoText>bookings@teacountry.com</InfoText>
+                <InfoText>sajid@teacountry.in</InfoText>
               </InfoContent>
             </InfoItem>
             
@@ -451,12 +459,11 @@ const ContactPage = () => {
                 <FaMapMarkerAlt />
               </InfoIcon>
               <InfoContent>
-                <InfoLabel>Office Address</InfoLabel>
+                <InfoLabel>Registered Office (Shillong)</InfoLabel>
                 <InfoText>
-                  Tea Country Tourism<br />
-                  123 Green Valley Road<br />
-                  Guwahati, Assam 781001<br />
-                  India
+                  Lower Lumparing, Laban<br />
+                  Shillong : 793004<br />
+                  Meghalaya, India
                 </InfoText>
               </InfoContent>
             </InfoItem>
@@ -482,7 +489,7 @@ const ContactPage = () => {
               <SocialLink href="https://facebook.com/teacountry" target="_blank" rel="noopener noreferrer">
                 <FaFacebook />
               </SocialLink>
-              <SocialLink href="https://wa.me/911234567890" target="_blank" rel="noopener noreferrer">
+              <SocialLink href="https://wa.me/919854133713" target="_blank" rel="noopener noreferrer">
                 <FaWhatsapp />
               </SocialLink>
             </SocialLinks>
@@ -495,7 +502,7 @@ const ContactPage = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <Map 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d114576.01064339716!2d91.5731031073733!3d26.14293313377233!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x375a5a287f9133ff%3A0x2bbd1332436bde48!2sGuwahati%2C%20Assam!5e0!3m2!1sen!2sin!4v1695048023977!5m2!1sen!2sin" 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d57182.58098329236!2d91.84835610556443!3d25.57927252492729!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x37507e8f34e953e9%3A0xc1ebb178b70022f2!2sLaban%2C%20Shillong%2C%20Meghalaya!5e0!3m2!1sen!2sin!4v1695048023977!5m2!1sen!2sin" 
             allowFullScreen="" 
             loading="lazy" 
             referrerPolicy="no-referrer-when-downgrade"

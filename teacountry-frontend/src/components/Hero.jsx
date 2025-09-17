@@ -59,7 +59,7 @@ const Hero = () => {
               style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${slide.url})` }}
             >
               <div className="hero-content">
-                <h1>Explore Tea Country</h1>
+                <h1>Explore With Tea Country</h1>
                 <div className="hero-caption">
                   <h2>{slide.title}</h2>
                   <p>{slide.description}</p>

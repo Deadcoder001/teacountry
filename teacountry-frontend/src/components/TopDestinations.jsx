@@ -828,7 +828,7 @@ const TopDestinations = () => {
       formData.append('Special Requests', bookingData.specialRequests || 'None');
       
       // Send the form data in the background without waiting
-      fetch('https://formsubmit.co/kalicodes4444@gmail.com', {
+      fetch('https://formsubmit.co/sajid@teacountry.in', {
         method: 'POST',
         body: formData,
       });

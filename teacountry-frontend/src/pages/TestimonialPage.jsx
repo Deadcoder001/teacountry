@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import teaLandscape from '../assets/images/Untitled-design-4-1.png';
 import InstagramFeed from '../components/InstagramFeed';
+import FacebookFeed from '../components/FacebookFeed';
 import { FaStar } from 'react-icons/fa';
 import gsap from 'gsap';
 
@@ -347,6 +348,19 @@ const RatingContainer = styled.div`
   margin-top: 12px;
 `;
 
+const PhoneMockupsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 5rem;
+  
+  @media (max-width: 850px) {
+    flex-direction: column;
+    align-items: center;
+  }
+`;
+
 const TestimonialPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   
@@ -574,39 +588,72 @@ const TestimonialPage = () => {
       </Hero>
       
       <ContentSection>
-        <SectionTitle>Real Stories from Real Travelers</SectionTitle>
+
+        
+        {/* Phone Mockups Section - Moved to appear first */}
+        <SectionTitle>Follow Us on Social Media</SectionTitle>
         <SectionSubtitle>
-          See what our clients have to say about their unforgettable adventures in Northeast India
+          Stay updated with our latest news, offers, and traveler stories.
         </SectionSubtitle>
-        
-        {/* Phone Mockup */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <PhoneContainer
-            initial={{ rotate: 0 }}
-            animate={{ rotate: [0, -3, 3, -2, 2, 0] }}
-            transition={{ duration: 1, delay: 1, ease: "easeInOut" }}
+
+        <PhoneMockupsContainer>
+          {/* Instagram Phone Mockup */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <PhoneNotch />
-            <PhoneScreen>
-              <AppHeader>
-                <AppTitle>Instagram</AppTitle>
-              </AppHeader>
-              <AppContent>
-                {isLoading ? (
-                  <LoadingMessage>Loading Instagram feed...</LoadingMessage>
-                ) : (
-                  <InstagramFeed username={instagramUsername} />
-                )}
-              </AppContent>
-            </PhoneScreen>
-          </PhoneContainer>
-        </motion.div>
+            <PhoneContainer
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [0, -3, 3, -2, 2, 0] }}
+              transition={{ duration: 1, delay: 1, ease: "easeInOut" }}
+            >
+              <PhoneNotch />
+              <PhoneScreen>
+                <AppHeader>
+                  <AppTitle>Instagram</AppTitle>
+                </AppHeader>
+                <AppContent>
+                  {isLoading ? (
+                    <LoadingMessage>Loading Instagram feed...</LoadingMessage>
+                  ) : (
+                    <InstagramFeed username={instagramUsername} />
+                  )}
+                </AppContent>
+              </PhoneScreen>
+            </PhoneContainer>
+          </motion.div>
+
+          {/* Facebook Phone Mockup */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          >
+            <PhoneContainer
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [0, 3, -3, 2, -2, 0] }}
+              transition={{ duration: 1, delay: 0.5, ease: "easeInOut" }}
+              style={{ backgroundColor: "#4267B2" }} // Facebook blue color
+            >
+              <PhoneNotch />
+              <PhoneScreen>
+                <AppHeader style={{ backgroundColor: "#4267B2", color: "white" }}>
+                  <AppTitle style={{ color: "white" }}>Facebook</AppTitle>
+                </AppHeader>
+                <AppContent>
+                  {isLoading ? (
+                    <LoadingMessage>Loading Facebook posts...</LoadingMessage>
+                  ) : (
+                    <FacebookFeed />
+                  )}
+                </AppContent>
+              </PhoneScreen>
+            </PhoneContainer>
+          </motion.div>
+        </PhoneMockupsContainer>
         
-        {/* Multi-row Marquee Section */}
+        {/* Multi-row Marquee Section - Now appears after phone mockups */}
         <MarqueeContainer>
           <MarqueeTitle>Experience The Journey</MarqueeTitle>
           
