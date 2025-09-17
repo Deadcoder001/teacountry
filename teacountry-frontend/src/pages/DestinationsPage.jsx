@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 // Import images for destinations
@@ -364,12 +364,64 @@ const ImageGallery = styled.div`
   border-radius: 8px;
   overflow: hidden;
   max-height: 400px;
+  position: relative;
+`;
+
+const GalleryImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+`;
+
+const GalleryNav = styled.div`
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 5;
+`;
+
+const GalleryDot = styled.button`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background-color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.5)'};
+  cursor: pointer;
+  transition: background-color 0.3s;
   
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  &:hover {
+    background-color: white;
   }
+`;
+
+const GalleryButton = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  z-index: 5;
+  
+  &:hover {
+    opacity: 1;
+  }
+  
+  ${props => props.position === 'left' ? 'left: 10px;' : 'right: 10px;'}
 `;
 
 const DetailContent = styled.div`
@@ -566,6 +618,9 @@ const DestinationsPage = () => {
     specialRequests: ''
   });
   
+  // Add this new state for the image carousel
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
   const destinationsPerPage = 9;
   
   // Define all Northeast states
@@ -605,76 +660,320 @@ const DestinationsPage = () => {
       includes: "Accommodation, meals, guided tours, tea tasting sessions, and cultural activities",
       additionalImages: [teaGarden, teaLandscape]
     },
+    
+    // MEGHALAYA DESTINATIONS
     {
-      id: 2,
-      name: "Majuli Island",
-      location: "Assam",
-      description: "Visit the world's largest river island and experience unique Assamese culture and traditions.",
-      image: teaGarden,
-      price: 10000,
-      priceDisplay: "₹10,000",
-      state: "assam",
-      duration: "2 days",
-      longDescription: "Majuli Island, the world's largest river island, is a cultural treasure of Assam. This vibrant island on the Brahmaputra River is home to many Satras (Vaishnavite monasteries) and is known for its rich cultural heritage. Visitors can explore traditional mask-making workshops, witness centuries-old performing arts, and enjoy the pristine natural beauty of this unique ecosystem.",
-      highlights: [
-        "Visit ancient Vaishnavite monasteries dating back to the 16th century",
-        "Experience traditional mask-making craft demonstrations",
-        "Boat rides on the mighty Brahmaputra River",
-        "Stay with local families in traditional homes",
-        "Witness Sattriya dance performances"
-      ],
-      includes: "Accommodation in homestays, meals, ferry transfers, guided tours, and cultural performances",
-      additionalImages: [teaGarden, umiamLake]
-    },
-    {
-      id: 3,
-      name: "Umiam Lake",
-      location: "Shillong, Meghalaya",
-      description: "Enjoy breathtaking views of this man-made reservoir surrounded by hills and lush green forests.",
+      id: 16,
+      name: "Shillong - Scotland of the East",
+      location: "East Khasi Hills, Meghalaya",
+      description: "Explore the capital of Meghalaya known for its pleasant climate, beautiful waterfalls, and vibrant culture.",
       image: umiamLake,
-      price: 12500,
-      priceDisplay: "₹12,500",
-      badge: "Featured",
+      price: 12000,
+      priceDisplay: "₹12,000",
       state: "meghalaya",
-      duration: "2 days",
-      longDescription: "Umiam Lake, also known as Barapani, is a stunning man-made reservoir located near Shillong. Surrounded by lush green East Khasi Hills, this picturesque lake offers panoramic views and a tranquil environment perfect for nature lovers. Visitors can enjoy various water sports, hiking trails along the shores, and mesmerizing sunsets that paint the water with golden hues.",
+      duration: "3 days",
+      longDescription: "Shillong, the capital of Meghalaya, is often called the 'Scotland of the East' for its rolling hills, picturesque landscapes, and pleasant climate. The city offers a blend of modern amenities with natural beauty. Visitors can explore attractions like Ward's Lake, Lady Hydari Park, Shillong Peak, and Don Bosco Museum while enjoying the unique Khasi culture and cuisine.",
       highlights: [
-        "Water sports including kayaking, water cycling, and boating",
-        "Lakeside resorts with panoramic views",
-        "Photography opportunities with stunning landscapes",
-        "Hiking trails through pine forests",
-        "Sunset views across the shimmering waters"
+        "Panoramic views from Shillong Peak",
+        "Boating at Ward's Lake",
+        "Northeast's largest museum at Don Bosco Centre",
+        "Shopping at Police Bazaar for local handicrafts",
+        "Golf at one of Asia's oldest golf courses"
       ],
-      includes: "Accommodation, breakfast, guided nature walks, and one water sport activity",
-      additionalImages: [umiamLake, teaLandscape]
+      includes: "Accommodation, breakfast, local sightseeing, and cultural experiences"
     },
     {
-      id: 4,
-      name: "Living Root Bridges",
-      location: "Cherrapunji, Meghalaya",
-      description: "Marvel at these natural wonders - bridges made from living tree roots that grow stronger over time.",
+      id: 17,
+      name: "Cherrapunjee (Sohra)",
+      location: "East Khasi Hills, Meghalaya",
+      description: "Visit one of the wettest places on Earth with breathtaking waterfalls and living root bridges.",
       image: umiamLake,
       price: 14000,
       priceDisplay: "₹14,000",
+      badge: "Natural Wonder",
+      state: "meghalaya",
+      duration: "3 days",
+      longDescription: "Cherrapunjee (locally known as Sohra) is famous for being one of the wettest places on Earth. The lush landscapes feature spectacular waterfalls like Nohkalikai (India's tallest plunge waterfall), Seven Sisters Falls, and Dainthlen Falls. The region is also home to incredible living root bridges, where Khasi tribes have trained tree roots to form natural bridges across streams.",
+      highlights: [
+        "Nohkalikai Falls - India's highest plunge waterfall",
+        "Mawsmai Cave exploration",
+        "Visit to living root bridges",
+        "Eco Park with panoramic canyon views",
+        "Arwah Cave with ancient fossils"
+      ]
+    },
+    {
+      id: 18,
+      name: "Mawlynnong - Asia's Cleanest Village",
+      location: "East Khasi Hills, Meghalaya",
+      description: "Experience the cleanest village in Asia with its unique living root bridges and sky view platforms.",
+      image: umiamLake,
+      price: 11000,
+      priceDisplay: "₹11,000",
+      state: "meghalaya",
+      duration: "2 days",
+      longDescription: "Mawlynnong has earned the distinction of being the cleanest village in Asia. This picturesque village showcases the sustainable lifestyle of the Khasi people with bamboo dustbins lining the streets, and a strong community-based approach to cleanliness. The village is also famous for its living root bridge and a unique 'Sky View' bamboo platform offering stunning views of the Bangladesh plains."
+    },
+    {
+      id: 19,
+      name: "Dawki & Shnongpdeng",
+      location: "West Jaintia Hills, Meghalaya",
+      description: "Enjoy crystal clear waters of the Umngot River, perfect for boating, swimming and riverside camping.",
+      image: umiamLake,
+      price: 13000,
+      priceDisplay: "₹13,000",
+      badge: "Instagram Favorite",
+      state: "meghalaya",
+      duration: "2 days"
+    },
+    {
+      id: 20,
+      name: "Jowai & Wari Chora",
+      location: "West Jaintia Hills, Meghalaya",
+      description: "Discover the cultural heart of Jaintia Hills with traditional villages and stunning landscapes.",
+      image: umiamLake,
+      price: 12500,
+      priceDisplay: "₹12,500",
       state: "meghalaya",
       duration: "3 days"
     },
     {
-      id: 5,
+      id: 21,
+      name: "Siju Cave Adventure",
+      location: "South Garo Hills, Meghalaya",
+      description: "Explore one of India's longest caves with magnificent limestone formations and underground river.",
+      image: umiamLake,
+      price: 15000,
+      priceDisplay: "₹15,000",
+      state: "meghalaya",
+      duration: "3 days"
+    },
+    {
+      id: 22,
+      name: "Khongthong - Whistling Village",
+      location: "East Khasi Hills, Meghalaya",
+      description: "Visit the unique village where residents communicate through distinctive whistles instead of names.",
+      image: umiamLake,
+      price: 12000,
+      priceDisplay: "₹12,000",
+      state: "meghalaya",
+      duration: "2 days"
+    },
+    {
+      id: 23,
+      name: "Nongriat Double Decker Root Bridge",
+      location: "East Khasi Hills, Meghalaya",
+      description: "Trek to see the magnificent double-decker living root bridge, a marvel of bio-engineering.",
+      image: umiamLake,
+      price: 14000,
+      priceDisplay: "₹14,000",
+      badge: "Adventure",
+      state: "meghalaya",
+      duration: "3 days"
+    },
+    
+    // ASSAM DESTINATIONS
+    {
+      id: 24,
+      name: "Guwahati City Tour",
+      location: "Kamrup Metro, Assam",
+      description: "Discover the gateway to Northeast with Kamakhya Temple, river cruises, and vibrant markets.",
+      image: teaGarden,
+      price: 10000,
+      priceDisplay: "₹10,000",
+      state: "assam",
+      duration: "2 days"
+    },
+    {
+      id: 25,
+      name: "Kaziranga National Park",
+      location: "Golaghat, Assam",
+      description: "Experience UNESCO World Heritage site known for one-horned rhinos and tiger reserve.",
+      image: teaGarden,
+      price: 15000,
+      priceDisplay: "₹15,000",
+      badge: "Wildlife",
+      state: "assam",
+      duration: "3 days",
+      longDescription: "Kaziranga National Park is a UNESCO World Heritage site and home to two-thirds of the world's one-horned rhinoceros population. This vast protected area spans across floodplains, forests, and grasslands, providing the perfect habitat for diverse wildlife. Visitors can enjoy jeep safaris and elephant rides to spot rhinos, tigers, elephants, wild buffaloes, and over 400 species of birds."
+    },
+    {
+      id: 26,
+      name: "Pobitora Wildlife Sanctuary",
+      location: "Morigaon, Assam",
+      description: "Visit the sanctuary with the highest density of one-horned rhinos in the world.",
+      image: teaGarden,
+      price: 12000,
+      priceDisplay: "₹12,000",
+      state: "assam",
+      duration: "2 days"
+    },
+    {
+      id: 27,
+      name: "Sualkuchi - Silk Village",
+      location: "Kamrup, Assam",
+      description: "Explore the largest silk village in India known as the 'Manchester of Assam'.",
+      image: teaGarden,
+      price: 9000,
+      priceDisplay: "₹9,000",
+      state: "assam",
+      duration: "1 day"
+    },
+    {
+      id: 28,
+      name: "Hajo Pilgrimage Tour",
+      location: "Kamrup, Assam",
+      description: "Discover this ancient pilgrimage center for Hindus, Muslims, and Buddhists.",
+      image: teaGarden,
+      price: 9500,
+      priceDisplay: "₹9,500",
+      state: "assam",
+      duration: "2 days"
+    },
+    {
+      id: 29,
+      name: "Sivasagar Heritage Tour",
+      location: "Sivasagar, Assam",
+      description: "Explore the former capital of the Ahom Kingdom with ancient monuments and temples.",
+      image: teaGarden,
+      price: 11000,
+      priceDisplay: "₹11,000",
+      state: "assam",
+      duration: "3 days"
+    },
+    {
+      id: 30,
+      name: "Jorhat & Majuli Island",
+      location: "Jorhat, Assam",
+      description: "Visit the cultural capital of Assam and the world's largest river island.",
+      image: teaGarden,
+      price: 13500,
+      priceDisplay: "₹13,500",
+      badge: "Cultural",
+      state: "assam",
+      duration: "4 days"
+    },
+    {
+      id: 31,
+      name: "Dibrugarh Tea Tour",
+      location: "Dibrugarh, Assam",
+      description: "Experience the 'Tea City of India' with visits to historical tea estates and factories.",
+      image: teaGarden,
+      price: 12500,
+      priceDisplay: "₹12,500",
+      state: "assam",
+      duration: "3 days"
+    },
+    {
+      id: 32,
+      name: "Digboi - First Oil Town",
+      location: "Tinsukia, Assam",
+      description: "Visit Asia's first oil refinery and learn about the history of oil industry in India.",
+      image: teaGarden,
+      price: 11000,
+      priceDisplay: "₹11,000",
+      state: "assam",
+      duration: "2 days"
+    },
+    {
+      id: 33,
+      name: "Manas National Park",
+      location: "Baksa, Assam",
+      description: "Explore this UNESCO World Heritage site with remarkable biodiversity and scenic beauty.",
+      image: teaGarden,
+      price: 14500,
+      priceDisplay: "₹14,500",
+      badge: "Wildlife",
+      state: "assam",
+      duration: "3 days"
+    },
+    {
+      id: 34,
+      name: "Nameri National Park",
+      location: "Sonitpur, Assam",
+      description: "Enjoy bird watching, river rafting, and wildlife experiences in this pristine forest.",
+      image: teaGarden,
+      price: 12000,
+      priceDisplay: "₹12,000",
+      state: "assam",
+      duration: "2 days"
+    },
+    {
+      id: 35,
+      name: "Chandubi Lake Tour",
+      location: "Kamrup, Assam",
+      description: "Visit this beautiful natural lake formed after an earthquake with rich biodiversity.",
+      image: teaGarden,
+      price: 9500,
+      priceDisplay: "₹9,500",
+      state: "assam",
+      duration: "2 days"
+    },
+    {
+      id: 36,
+      name: "Dibru Saikhowa National Park",
+      location: "Dibrugarh & Tinsukia, Assam",
+      description: "Discover rare wildlife including feral horses in this vibrant floodplain ecosystem.",
+      image: teaGarden,
+      price: 14000,
+      priceDisplay: "₹14,000",
+      state: "assam",
+      duration: "3 days"
+    },
+    
+    // ARUNACHAL PRADESH DESTINATIONS
+    {
+      id: 37,
+      name: "Dirang Valley",
+      location: "West Kameng, Arunachal Pradesh",
+      description: "Visit this beautiful valley with hot springs, ancient monastery, and traditional Monpa villages.",
+      image: teaLandscape,
+      price: 16000,
+      priceDisplay: "₹16,000",
+      state: "arunachal",
+      duration: "3 days"
+    },
+    {
+      id: 38,
+      name: "Shergaon Village Experience",
+      location: "West Kameng, Arunachal Pradesh",
+      description: "Immerse in the traditional lifestyle of the Sherdukpen tribe in this picturesque valley.",
+      image: teaLandscape,
+      price: 15000,
+      priceDisplay: "₹15,000",
+      badge: "Cultural",
+      state: "arunachal",
+      duration: "3 days"
+    },
+    {
+      id: 39,
+      name: "Bomdila Monastery Tour",
+      location: "West Kameng, Arunachal Pradesh",
+      description: "Visit important Buddhist center with stunning views of Himalayan ranges and valleys.",
+      image: teaLandscape,
+      price: 14500,
+      priceDisplay: "₹14,500",
+      state: "arunachal",
+      duration: "2 days"
+    },
+    {
+      id: 40,
       name: "Tawang Monastery",
       location: "Tawang, Arunachal Pradesh",
-      description: "Visit the largest monastery in India and second largest in the world with stunning mountain views.",
+      description: "Experience the largest monastery in India with spectacular mountain views and Buddhist culture.",
       image: teaLandscape,
       price: 18000,
       priceDisplay: "₹18,000",
+      badge: "Must Visit",
       state: "arunachal",
-      duration: "5 days"
+      duration: "5 days",
+      longDescription: "Perched at an altitude of over 10,000 feet, Tawang Monastery is the largest monastery in India and second largest in the world. This 400-year-old monastery holds immense spiritual significance for Buddhists and offers breathtaking views of the surrounding snow-capped mountains. Visitors can experience the daily life of monks, witness prayer ceremonies, and explore the vast library of ancient scriptures and thangkas (Tibetan Buddhist paintings)."
     },
     {
-      id: 6,
-      name: "Ziro Valley",
+      id: 41,
+      name: "Ziro Valley Festival",
       location: "Lower Subansiri, Arunachal Pradesh",
-      description: "Explore this UNESCO World Heritage site known for its unique paddy cultivation and tribal culture.",
+      description: "Experience the UNESCO World Heritage site with unique paddy cultivation and vibrant music festival.",
       image: teaLandscape,
       price: 16000,
       priceDisplay: "₹16,000",
@@ -682,44 +981,116 @@ const DestinationsPage = () => {
       duration: "4 days"
     },
     {
-      id: 7,
-      name: "Tsomgo Lake",
-      location: "East Sikkim",
-      description: "Visit this high-altitude glacial lake surrounded by snow-capped mountains and scenic beauty.",
-      image: teaImage,
-      price: 16500,
-      priceDisplay: "₹16,500",
-      badge: "Best Seller",
-      state: "sikkim",
+      id: 42,
+      name: "Itanagar Cultural Tour",
+      location: "Papum Pare, Arunachal Pradesh",
+      description: "Visit the capital city with its rich cultural heritage, museum and Buddhist temple.",
+      image: teaLandscape,
+      price: 12000,
+      priceDisplay: "₹12,000",
+      state: "arunachal",
       duration: "3 days"
     },
     {
-      id: 8,
-      name: "Nathula Pass",
-      location: "East Sikkim",
-      description: "Experience the historic Silk Route border pass between India and China at an altitude of 14,140 ft.",
-      image: teaImage,
-      price: 19000,
-      priceDisplay: "₹19,000",
-      state: "sikkim",
+      id: 43,
+      name: "Anini Adventure",
+      location: "Dibang Valley, Arunachal Pradesh",
+      description: "Explore one of India's most remote regions with pristine forests and Idu Mishmi tribal culture.",
+      image: teaLandscape,
+      price: 22000,
+      priceDisplay: "₹22,000",
+      badge: "Remote",
+      state: "arunachal",
+      duration: "6 days"
+    },
+    {
+      id: 44,
+      name: "Namsai Buddhist Circuit",
+      location: "Namsai, Arunachal Pradesh",
+      description: "Visit Golden Pagoda and other Buddhist temples in this spiritually significant region.",
+      image: teaLandscape,
+      price: 14000,
+      priceDisplay: "₹14,000",
+      state: "arunachal",
+      duration: "3 days"
+    },
+    
+    // NAGALAND DESTINATIONS
+    {
+      id: 45,
+      name: "Kohima War Cemetery",
+      location: "Kohima, Nagaland",
+      description: "Visit this historic WWII cemetery commemorating the Battle of Kohima with Japanese forces.",
+      image: teaLandscape,
+      price: 13000,
+      priceDisplay: "₹13,000",
+      state: "nagaland",
+      duration: "2 days"
+    },
+    {
+      id: 46,
+      name: "Khonoma Green Village",
+      location: "Kohima, Nagaland",
+      description: "Explore India's first green village with traditional Angami houses and terraced fields.",
+      image: teaLandscape,
+      price: 14000,
+      priceDisplay: "₹14,000",
+      badge: "Eco-Tourism",
+      state: "nagaland",
+      duration: "3 days"
+    },
+    {
+      id: 47,
+      name: "Hornbill Festival Experience",
+      location: "Kisama, Nagaland",
+      description: "Witness the 'Festival of Festivals' showcasing Nagaland's rich cultural heritage and traditions.",
+      image: teaLandscape,
+      price: 20000,
+      priceDisplay: "₹20,000",
+      badge: "Festival",
+      state: "nagaland",
+      duration: "5 days",
+      longDescription: "The Hornbill Festival, celebrated annually in December, is Nagaland's most famous cultural extravaganza. Held at Kisama Heritage Village, it brings together all 17 major tribes of Nagaland to showcase their traditions, dances, music, food, and handicrafts. Visitors can experience warrior displays, indigenous games, folk songs, religious ceremonies, and sample traditional rice beer and delicacies in this colorful celebration of Naga heritage."
+    },
+    {
+      id: 48,
+      name: "Kigwema Village Tour",
+      location: "Kohima, Nagaland",
+      description: "Visit this traditional Angami village with historical significance in Nagaland's freedom movement.",
+      image: teaLandscape,
+      price: 12500,
+      priceDisplay: "₹12,500",
+      state: "nagaland",
+      duration: "2 days"
+    },
+    {
+      id: 49,
+      name: "Dimapur Historical Tour",
+      location: "Dimapur, Nagaland",
+      description: "Explore ancient Dimasa kingdom ruins and experience urban Nagaland culture.",
+      image: teaLandscape,
+      price: 11000,
+      priceDisplay: "₹11,000",
+      state: "nagaland",
+      duration: "2 days"
+    },
+    {
+      id: 50,
+      name: "Mon Tribal Experience",
+      location: "Mon, Nagaland",
+      description: "Meet the Konyak tribe, former headhunters, known for their facial tattoos and traditional lifestyle.",
+      image: teaLandscape,
+      price: 16000,
+      priceDisplay: "₹16,000",
+      badge: "Cultural",
+      state: "nagaland",
       duration: "4 days"
     },
     {
-      id: 9,
-      name: "Loktak Lake",
-      location: "Moirang, Manipur",
-      description: "Discover the only floating lake in the world with unique phumdis (floating islands).",
-      image: teaGarden,
-      price: 13000,
-      priceDisplay: "₹13,000",
-      state: "manipur",
-      duration: "3 days"
-    },
-    {
-      id: 10,
-      name: "Dzukou Valley",
-      location: "Nagaland/Manipur Border",
-      description: "Trek through one of the most beautiful valleys famous for its seasonal flowers and lush landscapes.",
+      id: 51,
+      name: "Dzükou Valley Trek",
+      location: "Kohima, Nagaland",
+      description: "Trek through the Valley of Flowers of the Northeast with its unique terrain and seasonal blooms.",
       image: teaLandscape,
       price: 15500,
       priceDisplay: "₹15,500",
@@ -727,60 +1098,148 @@ const DestinationsPage = () => {
       duration: "4 days"
     },
     {
-      id: 11,
-      name: "Blue Mountain",
-      location: "Phawngpui, Mizoram",
-      description: "Climb the highest peak in Mizoram offering panoramic views and rich biodiversity.",
-      image: umiamLake,
-      price: 14500,
-      priceDisplay: "₹14,500",
-      state: "mizoram",
-      duration: "5 days"
+      id: 52,
+      name: "Longwa Village Border Experience",
+      location: "Mon, Nagaland",
+      description: "Visit the unique village where the chief's house is half in India and half in Myanmar.",
+      image: teaLandscape,
+      price: 17000,
+      priceDisplay: "₹17,000",
+      badge: "Unique",
+      state: "nagaland",
+      duration: "4 days"
+    },
+    
+    // MANIPUR DESTINATIONS
+    {
+      id: 53,
+      name: "Imphal City Tour",
+      location: "Imphal, Manipur",
+      description: "Explore the capital with its war cemetery, historic Kangla Fort and vibrant markets.",
+      image: teaImage,
+      price: 12000,
+      priceDisplay: "₹12,000",
+      state: "manipur",
+      duration: "2 days"
     },
     {
-      id: 12,
-      name: "Neermahal Palace",
-      location: "Tripura",
-      description: "Visit the stunning white palace built in the middle of Rudrasagar Lake combining Hindu and Muslim architectural styles.",
+      id: 54,
+      name: "Moreh Border Town",
+      location: "Tengnoupal, Manipur",
+      description: "Visit this trading town on Indo-Myanmar border with diverse cultures and customs.",
+      image: teaImage,
+      price: 14500,
+      priceDisplay: "₹14,500",
+      state: "manipur",
+      duration: "3 days"
+    },
+    {
+      id: 55,
+      name: "Loktak Lake Experience",
+      location: "Moirang, Manipur",
+      description: "Explore the largest freshwater lake in Northeast India with unique floating phumdis.",
+      image: teaImage,
+      price: 13000,
+      priceDisplay: "₹13,000",
+      badge: "Natural Wonder",
+      state: "manipur",
+      duration: "3 days",
+      longDescription: "Loktak Lake is the largest freshwater lake in Northeast India and famous for its unique floating islands called 'phumdis'. These are heterogeneous masses of soil, vegetation, and organic matter that float on the lake surface. The Keibul Lamjao National Park, the only floating national park in the world, is situated on the phumdis of this lake. Visitors can enjoy boat rides, witness the traditional fishing methods, and stay in stilt houses overlooking this ecological wonder."
+    },
+    {
+      id: 56,
+      name: "Keibul Lamjao National Park",
+      location: "Bishnupur, Manipur",
+      description: "Visit the world's only floating national park, home to endangered Sangai deer.",
+      image: teaImage,
+      price: 14000,
+      priceDisplay: "₹14,000",
+      badge: "Wildlife",
+      state: "manipur",
+      duration: "3 days"
+    },
+    
+    // MIZORAM DESTINATIONS
+    {
+      id: 57,
+      name: "Aizawl City Experience",
+      location: "Aizawl, Mizoram",
+      description: "Discover the hilly capital with its vibrant markets, museums and panoramic viewpoints.",
+      image: teaImage,
+      price: 13500,
+      priceDisplay: "₹13,500",
+      state: "mizoram",
+      duration: "3 days"
+    },
+    {
+      id: 58,
+      name: "Vantawng Falls Adventure",
+      location: "Serchhip, Mizoram",
+      description: "Visit Mizoram's highest waterfall cascading from a height of 750 feet through lush forests.",
+      image: teaImage,
+      price: 15000,
+      priceDisplay: "₹15,000",
+      state: "mizoram",
+      duration: "3 days"
+    },
+    {
+      id: 59,
+      name: "Reiek Heritage Village",
+      location: "Mamit, Mizoram",
+      description: "Experience traditional Mizo life in this model village with stunning mountain views.",
+      image: teaImage,
+      price: 14000,
+      priceDisplay: "₹14,000",
+      badge: "Cultural",
+      state: "mizoram",
+      duration: "3 days"
+    },
+    
+    // TRIPURA DESTINATIONS
+    {
+      id: 60,
+      name: "Agartala Royal Heritage",
+      location: "West Tripura, Tripura",
+      description: "Explore the former princely state with its royal palace, temples and Indo-Bangla heritage.",
       image: teaImage,
       price: 11000,
       priceDisplay: "₹11,000",
       state: "tripura",
-      duration: "2 days"
+      duration: "3 days"
     },
     {
-      id: 13,
-      name: "Kohima War Cemetery",
-      location: "Kohima, Nagaland",
-      description: "Visit this historical site commemorating soldiers who died in WWII during the Battle of Kohima.",
-      image: teaGarden,
+      id: 61,
+      name: "Unakoti Rock Carvings",
+      location: "Unakoti, Tripura",
+      description: "Discover ancient rock sculptures and carvings dating back to the 7th-9th centuries.",
+      image: teaImage,
+      price: 13000,
+      priceDisplay: "₹13,000",
+      badge: "Historical",
+      state: "tripura",
+      duration: "3 days"
+    },
+    {
+      id: 62,
+      name: "Neermahal Palace",
+      location: "Sepahijala, Tripura",
+      description: "Visit the stunning white water palace built in the middle of Rudrasagar Lake.",
+      image: teaImage,
       price: 12000,
       priceDisplay: "₹12,000",
-      state: "nagaland",
+      state: "tripura",
       duration: "2 days"
     },
     {
-      id: 14,
-      name: "Hornbill Festival",
-      location: "Kisama, Nagaland",
-      description: "Experience the colorful festival celebrating the diverse tribal culture and traditions of Nagaland.",
-      image: teaLandscape,
-      price: 20000,
-      priceDisplay: "₹20,000",
-      badge: "Special",
-      state: "nagaland",
-      duration: "7 days"
-    },
-    {
-      id: 15,
-      name: "Nameri National Park",
-      location: "Sonitpur, Assam",
-      description: "Explore this tiger reserve and elephant habitat with opportunities for bird watching and river rafting.",
-      image: teaGarden,
-      price: 13500,
-      priceDisplay: "₹13,500",
-      state: "assam",
-      duration: "3 days"
+      id: 63,
+      name: "Udaipur Temple Tour",
+      location: "Gomati, Tripura",
+      description: "Explore the ancient temples of Tripura's former capital including the famous Tripura Sundari Temple.",
+      image: teaImage,
+      price: 10500,
+      priceDisplay: "₹10,500",
+      state: "tripura",
+      duration: "2 days"
     }
   ];
   
@@ -906,6 +1365,26 @@ Please contact me with availability and booking information. Thank you!
     closeModal();
   };
 
+  // Reset the image index when a new destination is selected
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [selectedDestination]);
+  
+  // Function to handle image navigation
+  const nextImage = () => {
+    if (selectedDestination && selectedDestination.additionalImages) {
+      const images = [selectedDestination.image, ...selectedDestination.additionalImages];
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }
+  };
+  
+  const prevImage = () => {
+    if (selectedDestination && selectedDestination.additionalImages) {
+      const images = [selectedDestination.image, ...selectedDestination.additionalImages];
+      setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    }
+  };
+
   return (
     <PageContainer>
       <Hero>
@@ -1021,9 +1500,42 @@ Please contact me with availability and booking information. Thank you!
             <ModalBody>
               <DestinationDetails>
                 <ImageGallery>
-                  <img src={selectedDestination.image} alt={selectedDestination.name} />
+                  {selectedDestination.additionalImages ? (
+                    <>
+                      <GalleryImage 
+                        src={currentImageIndex === 0 
+                          ? selectedDestination.image 
+                          : selectedDestination.additionalImages[currentImageIndex - 1]} 
+                        alt={`${selectedDestination.name} - Image ${currentImageIndex + 1}`} 
+                      />
+                      
+                      {/* Only show navigation if there's more than one image */}
+                      {selectedDestination.additionalImages.length > 0 && (
+                        <>
+                          <GalleryButton position="left" onClick={prevImage}>
+                            &#10094;
+                          </GalleryButton>
+                          <GalleryButton position="right" onClick={nextImage}>
+                            &#10095;
+                          </GalleryButton>
+                          
+                          <GalleryNav>
+                            {[selectedDestination.image, ...selectedDestination.additionalImages].map((_, index) => (
+                              <GalleryDot 
+                                key={index} 
+                                active={currentImageIndex === index}
+                                onClick={() => setCurrentImageIndex(index)}
+                              />
+                            ))}
+                          </GalleryNav>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <GalleryImage src={selectedDestination.image} alt={selectedDestination.name} />
+                  )}
                 </ImageGallery>
-                
+
                 <DetailContent>
                   <DetailSection>
                     <DetailTitle>About this destination</DetailTitle>

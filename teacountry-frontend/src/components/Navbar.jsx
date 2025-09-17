@@ -77,16 +77,10 @@ const Navbar = () => {
               <Link to="/" className="nav-link" onClick={() => setMenuOpen(false)}>Home</Link>
             </li>
             <li className="nav-item">
-              <Link to="/offers" className="nav-link" onClick={() => setMenuOpen(false)}>Offers</Link>
-            </li>
-            <li className="nav-item">
               <Link to="/gallery" className="nav-link" onClick={() => setMenuOpen(false)}>Gallery</Link>
             </li>
             <li className="nav-item">
               <Link to="/destinations" className="nav-link" onClick={() => setMenuOpen(false)}>Destinations</Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/blog" className="nav-link" onClick={() => setMenuOpen(false)}>Blog</Link>
             </li>
             <li className="nav-item">
               <Link to="/testimonial" className="nav-link" onClick={() => setMenuOpen(false)}>Testimonial</Link>

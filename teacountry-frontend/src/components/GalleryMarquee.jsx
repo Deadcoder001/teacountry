@@ -46,6 +46,16 @@ const MarqueeTitle = styled.h2`
     height: 3px;
     background-color: #2c6a3f;
   }
+
+  @media screen and (max-width: 768px) {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: 1.75rem;
+    margin-bottom: 1.2rem;
+  }
 `;
 
 const MarqueeTrack = styled.div`
@@ -62,9 +72,38 @@ const MarqueeRow = styled.div`
 const MarqueeWrapper = styled.div`
   overflow: hidden;
   margin-bottom: 20px;
+  position: relative;
   
-  &:hover ${MarqueeTrack} {
-    animation-play-state: paused;
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 80px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  &::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(248, 249, 250, 0.9), rgba(248, 249, 250, 0));
+  }
+
+  &::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(248, 249, 250, 0.9), rgba(248, 249, 250, 0));
+  }
+  
+  @media screen and (max-width: 768px) {
+    &::before, &::after {
+      width: 50px;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    &::before, &::after {
+      width: 30px;
+    }
   }
 `;
 
@@ -97,6 +136,17 @@ const ImageContainer = styled.div`
     object-fit: cover;
     transition: transform 0.5s ease;
   }
+  
+  @media screen and (max-width: 768px) {
+    width: 240px;
+    height: 160px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: 180px;
+    height: 120px;
+    margin: 0 6px;
+  }
 `;
 
 const ImageDetails = styled.div`
@@ -109,29 +159,54 @@ const ImageDetails = styled.div`
   color: white;
   opacity: 0;
   transition: opacity 0.3s ease;
+  
+  @media screen and (max-width: 768px) {
+    padding: 15px 12px 12px;
+  }
+  
+  @media screen and (max-width: 480px) {
+    padding: 12px 10px 10px;
+  }
 `;
 
 const LocationTitle = styled.h3`
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
+  
+  @media screen and (max-width: 768px) {
+    font-size: 1rem;
+  }
+  
+  @media screen and (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const LocationState = styled.p`
   margin: 5px 0 0;
   font-size: 0.9rem;
   opacity: 0.8;
+  
+  @media screen and (max-width: 768px) {
+    font-size: 0.8rem;
+    margin: 3px 0 0;
+  }
+  
+  @media screen and (max-width: 480px) {
+    font-size: 0.7rem;
+    margin: 2px 0 0;
+  }
 `;
 
 const GalleryMarquee = () => {
   const navigate = useNavigate();
   const marquee1Ref = useRef(null);
   const marquee2Ref = useRef(null);
-  const [isPaused, setIsPaused] = useState(false);
-  
-  // Animation contexts to control them
-  const animation1 = useRef(null);
-  const animation2 = useRef(null);
+  const marquee3Ref = useRef(null);
+  const track1Ref = useRef(null);
+  const track2Ref = useRef(null);
+  const track3Ref = useRef(null);
   
   // Define location data for our images
   const locations = [
@@ -149,8 +224,11 @@ const GalleryMarquee = () => {
     { id: 12, image: ziroValley, name: "Ziro Valley", state: "Arunachal Pradesh" }
   ];
 
-  // Reverse order for second row to create opposite movement
+  // Reverse order for middle row to create opposite movement
   const locationsReverse = [...locations].reverse();
+  
+  // Shuffle the array for third row to have a different order
+  const locationsShuffle = [...locations].sort(() => Math.random() - 0.5);
   
   // Navigate to gallery page when clicking on the marquee
   const handleMarqueeClick = () => {
@@ -158,40 +236,89 @@ const GalleryMarquee = () => {
   };
   
   useEffect(() => {
-    // Animation for first row (left to right)
-    animation1.current = gsap.to(marquee1Ref.current, {
-      x: "-50%",
-      duration: 30,
-      ease: "none",
-      repeat: -1,
-      paused: isPaused
-    });
+    // Get the width of a single row for each track
+    const setupAnimations = () => {
+      if (!marquee1Ref.current || !marquee2Ref.current || !marquee3Ref.current) return;
+      
+      const track1 = marquee1Ref.current;
+      const track2 = marquee2Ref.current;
+      const track3 = marquee3Ref.current;
+      
+      // Get the width of a single row
+      const rowWidth1 = track1.children[0].offsetWidth;
+      const rowWidth2 = track2.children[0].offsetWidth;
+      const rowWidth3 = track3.children[0].offsetWidth;
+      
+      // Create seamless infinite animations
+      const tl1 = gsap.timeline({ repeat: -1, paused: false });
+      tl1.to(track1, {
+        x: -rowWidth1,
+        duration: 30,
+        ease: "none",
+      });
+      
+      const tl2 = gsap.timeline({ repeat: -1, paused: false });
+      tl2.to(track2, {
+        x: -rowWidth2,
+        duration: 25, // Slightly faster for visual interest
+        ease: "none",
+      });
+      
+      const tl3 = gsap.timeline({ repeat: -1, paused: false });
+      tl3.to(track3, {
+        x: -rowWidth3,
+        duration: 35, // Slightly slower for visual interest
+        ease: "none",
+      });
+      
+      // Store timelines for pause/play control
+      track1Ref.current = tl1;
+      track2Ref.current = tl2;
+      track3Ref.current = tl3;
+    };
     
-    // Animation for second row (right to left)
-    animation2.current = gsap.to(marquee2Ref.current, {
-      x: "50%",
-      duration: 30,
-      ease: "none",
-      repeat: -1,
-      paused: isPaused
-    });
+    // Setup initial animations
+    setupAnimations();
+    
+    // Handle window resize to reset animations if needed
+    const handleResize = () => {
+      if (track1Ref.current) track1Ref.current.kill();
+      if (track2Ref.current) track2Ref.current.kill();
+      if (track3Ref.current) track3Ref.current.kill();
+      setupAnimations();
+    };
+    
+    window.addEventListener('resize', handleResize);
     
     return () => {
-      // Clean up animations when component unmounts
-      if (animation1.current) animation1.current.kill();
-      if (animation2.current) animation2.current.kill();
+      // Clean up animations and event listeners
+      window.removeEventListener('resize', handleResize);
+      if (track1Ref.current) track1Ref.current.kill();
+      if (track2Ref.current) track2Ref.current.kill();
+      if (track3Ref.current) track3Ref.current.kill();
     };
   }, []);
   
   // Handle mouse enter/leave for pausing the animations
   const handleMouseEnter = () => {
-    if (animation1.current) animation1.current.pause();
-    if (animation2.current) animation2.current.pause();
+    if (track1Ref.current) track1Ref.current.pause();
+    if (track2Ref.current) track2Ref.current.pause();
+    if (track3Ref.current) track3Ref.current.pause();
   };
   
   const handleMouseLeave = () => {
-    if (animation1.current) animation1.current.play();
-    if (animation2.current) animation2.current.play();
+    if (track1Ref.current) track1Ref.current.play();
+    if (track2Ref.current) track2Ref.current.play();
+    if (track3Ref.current) track3Ref.current.play();
+  };
+
+  // Handle touch events for mobile devices
+  const handleTouchStart = () => {
+    handleMouseEnter();
+  };
+  
+  const handleTouchEnd = () => {
+    handleMouseLeave();
   };
 
   return (
@@ -202,6 +329,8 @@ const GalleryMarquee = () => {
       <MarqueeWrapper 
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         onClick={handleMarqueeClick}
       >
         <MarqueeTrack ref={marquee1Ref}>
@@ -221,7 +350,7 @@ const GalleryMarquee = () => {
           {/* Duplicate set for seamless loop */}
           <MarqueeRow>
             {locations.map((location) => (
-              <ImageContainer key={`dup-${location.id}`}>
+              <ImageContainer key={`dup1-${location.id}`}>
                 <img src={location.image} alt={location.name} />
                 <ImageDetails className="image-details">
                   <LocationTitle>{location.name}</LocationTitle>
@@ -237,6 +366,8 @@ const GalleryMarquee = () => {
       <MarqueeWrapper 
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         onClick={handleMarqueeClick}
       >
         <MarqueeTrack ref={marquee2Ref}>
@@ -257,6 +388,43 @@ const GalleryMarquee = () => {
           <MarqueeRow>
             {locationsReverse.map((location) => (
               <ImageContainer key={`rev-dup-${location.id}`}>
+                <img src={location.image} alt={location.name} />
+                <ImageDetails className="image-details">
+                  <LocationTitle>{location.name}</LocationTitle>
+                  <LocationState>{location.state}</LocationState>
+                </ImageDetails>
+              </ImageContainer>
+            ))}
+          </MarqueeRow>
+        </MarqueeTrack>
+      </MarqueeWrapper>
+      
+      {/* Third Marquee Row */}
+      <MarqueeWrapper 
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onClick={handleMarqueeClick}
+      >
+        <MarqueeTrack ref={marquee3Ref}>
+          {/* First set of shuffled images */}
+          <MarqueeRow>
+            {locationsShuffle.map((location) => (
+              <ImageContainer key={`shuffle-${location.id}`}>
+                <img src={location.image} alt={location.name} />
+                <ImageDetails className="image-details">
+                  <LocationTitle>{location.name}</LocationTitle>
+                  <LocationState>{location.state}</LocationState>
+                </ImageDetails>
+              </ImageContainer>
+            ))}
+          </MarqueeRow>
+          
+          {/* Duplicate set for seamless loop */}
+          <MarqueeRow>
+            {locationsShuffle.map((location) => (
+              <ImageContainer key={`shuffle-dup-${location.id}`}>
                 <img src={location.image} alt={location.name} />
                 <ImageDetails className="image-details">
                   <LocationTitle>{location.name}</LocationTitle>

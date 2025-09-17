@@ -802,42 +802,42 @@ const TopDestinations = () => {
     setBookingData(prev => ({ ...prev, travelDate: date }));
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Format the date
     const formattedDate = bookingData.travelDate.toLocaleDateString('en-IN');
     
-    // Prepare WhatsApp message
-    const message = `
-Hello! I would like to book the following tour:
-
-*Destination:* ${selectedDestination.name}
-*Duration:* ${selectedDestination.duration}
-*Price:* ${selectedDestination.price}
-
-*My Details:*
-Name: ${bookingData.name}
-Email: ${bookingData.email}
-Phone: ${bookingData.phone}
-Number of guests: ${bookingData.guests}
-Preferred travel date: ${formattedDate}
-
-${bookingData.specialRequests ? `Special requests: ${bookingData.specialRequests}` : ''}
-
-Please contact me with availability and booking information. Thank you!
-    `;
+    // Show immediate thank you message instead of loading message
+    alert("Thank you for your booking request! We'll contact you shortly to confirm your reservation.");
     
-    // Admin WhatsApp number
-    const adminWhatsApp = "919854133713"; // Format: country code + number without +
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappURL = `https://wa.me/${adminWhatsApp}?text=${encodedMessage}`;
-    
-    // Open WhatsApp in a new tab
-    window.open(whatsappURL, '_blank');
-    
-    // Close the modal
+    // Close the modal immediately to improve UX
     closeModal();
+    
+    try {
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('Destination', selectedDestination.name);
+      formData.append('Duration', selectedDestination.duration);
+      formData.append('Price', selectedDestination.price);
+      formData.append('Customer Name', bookingData.name);
+      formData.append('Email', bookingData.email);
+      formData.append('Phone', bookingData.phone);
+      formData.append('Number of Guests', bookingData.guests);
+      formData.append('Travel Date', formattedDate);
+      formData.append('Special Requests', bookingData.specialRequests || 'None');
+      
+      // Send the form data in the background without waiting
+      fetch('https://formsubmit.co/kalicodes4444@gmail.com', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      // No additional alert here since we already showed the thank you message
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      // Log error but don't show another alert since modal is already closed
+    }
   };
 
   return (
@@ -1026,7 +1026,7 @@ Please contact me with availability and booking information. Thank you!
                   </FormRow>
                   
                   <SubmitButton type="submit">
-                    Complete Booking via WhatsApp
+                    Book Now
                   </SubmitButton>
                 </BookingForm>
               )}

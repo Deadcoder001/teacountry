@@ -9,9 +9,17 @@ import design6 from '../assets/images/marquee/Untitled-design-6.png';
 import design from '../assets/images/marquee/Untitled-design.png';
 
 const MarqueeSection = styled.section`
-  padding: 5rem 0;
+  padding: 4rem 0;
   overflow: hidden;
   position: relative;
+  
+  @media (max-width: 768px) {
+    padding: 3rem 0;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 2rem 0;
+  }
 `;
 
 const scrollAnimation = keyframes`
@@ -27,6 +35,14 @@ const MarqueeContainer = styled.div`
   &:hover {
     animation-play-state: paused;
   }
+  
+  @media (max-width: 768px) {
+    animation: ${scrollAnimation} 20s linear infinite;
+  }
+  
+  @media (max-width: 480px) {
+    animation: ${scrollAnimation} 15s linear infinite;
+  }
 `;
 
 const LogoWrapper = styled.div`
@@ -35,6 +51,14 @@ const LogoWrapper = styled.div`
   justify-content: space-around;
   width: 100%;
   padding: 0 2rem;
+  
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 0.5rem;
+  }
 `;
 
 const Logo = styled.div`
@@ -42,6 +66,14 @@ const Logo = styled.div`
   align-items: center;
   justify-content: center;
   padding: 1rem 2rem;
+  
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+  }
 `;
 
 const LogoImage = styled.img`
@@ -54,35 +86,13 @@ const LogoImage = styled.img`
   &:hover {
     transform: scale(1.1);
   }
-`;
-
-const NavButton = styled.button`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: rgba(44, 106, 63, 0.8);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border: none;
-  z-index: 10;
-  transition: all 0.3s ease;
   
-  &:hover {
-    background-color: rgb(44, 106, 63);
+  @media (max-width: 768px) {
+    height: 60px;
   }
   
-  &.prev {
-    left: 20px;
-  }
-  
-  &.next {
-    right: 20px;
+  @media (max-width: 480px) {
+    height: 40px;
   }
 `;
 
@@ -94,6 +104,7 @@ const SectionTitle = styled.h2`
   display: inline-block;
   left: 50%;
   transform: translateX(-50%);
+  font-size: 2rem;
   
   &:after {
     content: '';
@@ -103,6 +114,36 @@ const SectionTitle = styled.h2`
     width: 100%;
     height: 3px;
     background-color: #2c6a3f;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    
+    &:after {
+      bottom: -8px;
+      height: 2px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
+    
+    &:after {
+      bottom: -6px;
+    }
+  }
+`;
+
+// Touch event handling wrapper for mobile devices
+const TouchWrapper = styled.div`
+  width: 100%;
+  
+  @media (max-width: 768px) {
+    &:active ${MarqueeContainer} {
+      animation-play-state: paused;
+    }
   }
 `;
 
@@ -119,22 +160,24 @@ const LogoMarquee = () => {
   return (
     <MarqueeSection>
       <SectionTitle>Our Certifications</SectionTitle>
-      <MarqueeContainer>
-        <LogoWrapper>
-          {logos.map(logo => (
-            <Logo key={logo.id}>
-              <LogoImage src={logo.image} alt={logo.name} />
-            </Logo>
-          ))}
-        </LogoWrapper>
-        <LogoWrapper>
-          {logos.map(logo => (
-            <Logo key={`duplicate-${logo.id}`}>
-              <LogoImage src={logo.image} alt={logo.name} />
-            </Logo>
-          ))}
-        </LogoWrapper>
-      </MarqueeContainer>
+      <TouchWrapper>
+        <MarqueeContainer>
+          <LogoWrapper>
+            {logos.map(logo => (
+              <Logo key={logo.id}>
+                <LogoImage src={logo.image} alt={logo.name} />
+              </Logo>
+            ))}
+          </LogoWrapper>
+          <LogoWrapper>
+            {logos.map(logo => (
+              <Logo key={`duplicate-${logo.id}`}>
+                <LogoImage src={logo.image} alt={logo.name} />
+              </Logo>
+            ))}
+          </LogoWrapper>
+        </MarqueeContainer>
+      </TouchWrapper>
     </MarqueeSection>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import styled from 'styled-components';
 
@@ -15,11 +15,17 @@ import tawang from '../assets/images/tawang-monastery.jpg';
 import hornbill from '../assets/images/hornbill-festival.jpg';
 
 const Container = styled.div`
-  height: 120vh;
+  height: auto;
+  min-height: 120vh;
   position: relative;
   background-color: white;
   overflow: hidden;
   margin-bottom: -5rem;
+  
+  @media (max-width: 768px) {
+    min-height: 100vh;
+    margin-bottom: -3rem;
+  }
 `;
 
 const StickyContainer = styled.div`
@@ -31,7 +37,18 @@ const StickyContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
   padding-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    top: 70px;
+    padding: 1.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    top: 60px;
+    padding: 1rem;
+  }
 `;
 
 const Title = styled.h2`
@@ -41,6 +58,16 @@ const Title = styled.h2`
   text-align: center;
   margin-bottom: 1.5rem;
   z-index: 20;
+  
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const Subtitle = styled.p`
@@ -50,6 +77,17 @@ const Subtitle = styled.p`
   text-align: center;
   margin-bottom: 3rem;
   z-index: 20;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const ImagesContainer = styled.div`
@@ -59,6 +97,19 @@ const ImagesContainer = styled.div`
   width: 85%;
   max-width: 1200px;
   z-index: 10;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    width: 90%;
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 400px;
+    gap: 1.25rem;
+  }
 `;
 
 const ImageWrapper = styled(motion.div)`
@@ -75,11 +126,31 @@ const ImageWrapper = styled(motion.div)`
   &:nth-child(3n+2) {
     grid-column: span 1;
     margin-top: 4rem;
+    
+    @media (max-width: 1024px) {
+      margin-top: 2rem;
+    }
+    
+    @media (max-width: 600px) {
+      margin-top: 0;
+    }
   }
   
   &:nth-child(3n) {
     grid-column: span 1;
     margin-top: 2rem;
+    
+    @media (max-width: 1024px) {
+      margin-top: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    height: 350px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 300px;
   }
 `;
 
@@ -98,27 +169,60 @@ const ImageCaption = styled.div`
   padding: 1rem;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
   color: white;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
   
-  ${ImageWrapper}:hover & {
+  @media (min-width: 769px) {
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    
+    ${ImageWrapper}:hover & {
+      transform: translateY(0);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    /* Always show caption on mobile */
     transform: translateY(0);
+    padding: 0.75rem;
   }
 `;
 
 const ImageTitle = styled.h3`
   font-size: 1.2rem;
   margin: 0 0 0.25rem 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 `;
 
 const ImageLocation = styled.p`
   font-size: 0.9rem;
   margin: 0;
   opacity: 0.9;
+  
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const ImageGridScroll = () => {
   const containerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -174,13 +278,22 @@ const ImageGridScroll = () => {
     }
   ];
   
-  // Slice to show only 6 images to maintain your original grid
-  const displayedImages = images.slice(0, 6);
+  // Show fewer images on mobile
+  const displayedImages = isMobile ? images.slice(0, 4) : images.slice(0, 6);
   
   // Reduced transform values for less extreme movement
   const y1 = useTransform(scrollYProgress, [0, 1], ["0%", "-20%"]);
   const y2 = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
   const y3 = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
+  
+  // Disable transform on mobile for better performance
+  const getYTransform = (index) => {
+    if (isMobile) return 0;
+    
+    if (index % 3 === 0) return y1;
+    if (index % 3 === 1) return y2;
+    return y3;
+  };
   
   return (
     <Container ref={containerRef}>
@@ -192,16 +305,10 @@ const ImageGridScroll = () => {
         
         <ImagesContainer>
           {displayedImages.map((image, index) => {
-            // Apply different y transform based on column position
-            let yTransform;
-            if (index % 3 === 0) yTransform = y1;
-            else if (index % 3 === 1) yTransform = y2;
-            else yTransform = y3;
-            
             return (
               <ImageWrapper 
                 key={index}
-                style={{ y: yTransform }}
+                style={{ y: getYTransform(index) }}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

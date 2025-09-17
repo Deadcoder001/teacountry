@@ -128,4 +128,10 @@
   .hero-caption p {
     font-size: 1rem;
   }
+  
+  /* Hide navigation buttons on mobile */
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: none !important;
+  }
 }

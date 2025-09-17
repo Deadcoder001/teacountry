@@ -1,37 +1,28 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
 import './App.css';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import LogoMarquee from './components/LogoMarquee';
-import ImageGridScroll from './components/ImageGridScroll';
-import VideoSection from './components/VideoSection';
-import TopDestinations from './components/TopDestinations';
-import AboutUs from './components/AboutUs';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop'; // Add this component to scroll to top on route change
+
+// Pages
+import HomePage from './pages/HomePage';
 import DestinationsPage from './pages/DestinationsPage';
 import GalleryPage from './pages/GalleryPage';
-import GalleryMarquee from './components/GalleryMarquee';
+import ContactPage from './pages/ContactPage';
+import TestimonialPage from './pages/TestimonialPage';
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Navbar />
       <Routes>
-        <Route path="/" element={
-          <>
-            <Hero />
-            <LogoMarquee />
-            <ImageGridScroll />
-            <VideoSection />
-            <GalleryMarquee />
-            <TopDestinations />
-            <AboutUs />
-          </>
-        } />
+        <Route path="/" element={<HomePage />} />
         <Route path="/destinations" element={<DestinationsPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
-        {/* Add more routes here as you develop the app */}
+        <Route path="/testimonial" element={<TestimonialPage />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
       <Footer />
     </Router>

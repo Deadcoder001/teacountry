@@ -33,7 +33,10 @@ const Footer = () => {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; {currentYear} Tea Country. All rights reserved.</p>
+          <div>
+            <p>&copy; {currentYear} Tea Country. All rights reserved.</p>
+            <p>Made with ❤ by Scabbardtech</p>
+          </div>
           <div className="footer-social">
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
